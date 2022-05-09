@@ -56,32 +56,31 @@ impl PrintableTree for NodeReference {
 }
 
 #[inline]
-fn is_between(value: i32, min: &Option<i32>, max: &Option<i32>) -> bool {
-    min.map(|m| value > m).unwrap_or(true) && max.map(|m| value < m).unwrap_or(true)
+fn is_smaller(value: i32, max: &Option<i32>) -> bool {
+    max.map(|m| value < m).unwrap_or(true)
 }
 
 pub fn bst_from_preorder(preorder: Vec<i32>) -> NodeReference {
     fn bst_from_preorder_inner(
         preorder: &mut VecDeque<i32>,
-        min_value: Option<i32>,
         max_value: Option<i32>,
     ) -> NodeReference {
         match preorder.pop_front() {
             Some(head) => {
                 let mut node = TreeNode::new(head);
                 if let Some(&next) = preorder.front() {
-                    if is_between(next, &min_value, &max_value) {
+                    if is_smaller(next, &max_value) {
                         if next > head {
-                            node.right = bst_from_preorder_inner(preorder, Some(head), max_value)
+                            node.right = bst_from_preorder_inner(preorder, max_value)
                         } else {
-                            node.left = bst_from_preorder_inner(preorder, min_value, Some(head))
+                            node.left = bst_from_preorder_inner(preorder, Some(head))
                         }
                     }
                 }
 
                 if let Some(&next) = preorder.front() {
-                    if is_between(next, &min_value, &max_value) && next > head {
-                        node.right = bst_from_preorder_inner(preorder, Some(node.val), max_value)
+                    if is_smaller(next, &max_value) && next > head {
+                        node.right = bst_from_preorder_inner(preorder, max_value)
                     }
                 }
 
@@ -92,7 +91,7 @@ pub fn bst_from_preorder(preorder: Vec<i32>) -> NodeReference {
     }
 
     let mut prequeue = VecDeque::from(preorder);
-    bst_from_preorder_inner(&mut prequeue, None, None)
+    bst_from_preorder_inner(&mut prequeue, None)
 }
 
 #[cfg(test)]
