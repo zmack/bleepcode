@@ -92,28 +92,7 @@ pub fn bst_from_preorder(preorder: Vec<i32>) -> NodeReference {
     }
 
     let mut prequeue = VecDeque::from(preorder);
-
-    match prequeue.pop_front() {
-        Some(head) => {
-            let mut node = TreeNode::new(head);
-            if let Some(&next) = prequeue.front() {
-                if next > head {
-                    node.right = bst_from_preorder_inner(&mut prequeue, Some(node.val), None)
-                } else {
-                    node.left = bst_from_preorder_inner(&mut prequeue, None, Some(node.val))
-                }
-            }
-
-            if let Some(&next) = prequeue.front() {
-                if next > head {
-                    node.right = bst_from_preorder_inner(&mut prequeue, Some(node.val), None)
-                }
-            }
-
-            Some(Rc::new(RefCell::new(node)))
-        }
-        None => None,
-    }
+    bst_from_preorder_inner(&mut prequeue, None, None)
 }
 
 #[cfg(test)]
